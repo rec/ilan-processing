@@ -37,13 +37,21 @@ int rightClicksRange = 7;
 
 /* LINE GENERATION */
 
-int lineLimit = 2000; // How many lines can be generated. Needs to be modified to either have the lines
+int LINE_LIMIT = 2000; // How many lines can be generated. Needs to be modified to either have the lines
                       // be 'recycled' after the limit is reached. Also the limit needs to be increased.
-int lineCountLimit = 500;
 
-PassingLines[] lines = new PassingLines[lineLimit]; // Declare the object
-int linecount = 1; // Keeps track of how many line instances have been created
+PassingLines[] lines = new PassingLines[LINE_LIMIT]; // Declare the object
+int linecount = 0; // Keeps track of how many line instances have been created
 
+/**
+   Increment linecount, wrapping around when we reach the end.
+ */
+int nextLinecount() {
+  int count = linecount;
+  linecount = (linecount + 1) % lines.length;
+
+  return count;
+}
 
 
 void setup() {
@@ -136,7 +144,7 @@ void draw() {
   canvas.stroke(255);
 
   // Call the draw function within the line object
-   for ( int i = 0; i < lineLimit; i++ ) {
+   for ( int i = 0; i < lines.length; i++ ) {
 
      lines[i].draw();
 
@@ -154,15 +162,13 @@ void noteOn(int channel, int pitch, int velocity) {
 
    if ( channel == 3 ) { // Sent from channel 4 in Vezer
       if ( pitch > 0 ) {
-        linecount = linecount + 1;
-        lines[linecount].startMovingLeft();
+        lines[nextLinecount()].startMovingLeft();
       }
    }
 
    if ( channel == 4 ) {  // Sent from channel 5 in Vezer
      if ( pitch > 0 ) {
-        linecount = linecount + 1;
-        lines[linecount].startMovingRight();
+       lines[nextLinecount()].startMovingRight();
      }
    }
 
